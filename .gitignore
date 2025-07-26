@@ -92,6 +92,7 @@ data/*.xlsx
 data/*.docx
 data/downloads/
 data/processed/
+data/
 
 # Images (Exclude actual images but keep folder structure)
 images/*.jpg

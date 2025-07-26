@@ -73,7 +73,8 @@ class EducationalTutorAgent:
         self.rag_manager = None
         if pdf_path and os.path.exists(pdf_path):
             self.rag_manager = RAGManager(api_key=self.api_key)
-            self.rag_manager.process_pdf(pdf_path, subject="Mathematics", class_name="Class 5", chapter="Chapter 2")
+            # Fix: Change process_pdf to setup_rag_system
+            self.rag_manager.setup_rag_system(pdf_path, subject="Mathematics", class_name="Class 5", chapter="Chapter 2")
         
         # Build the workflow graph
         self.graph = self._build_workflow()

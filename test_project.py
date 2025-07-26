@@ -10,7 +10,8 @@ def test_system():
     
     # Initialize system
     try:
-        system = EducationalTutorSystem(pdf_path="data/class5_chapter2.pdf")
+        #data/ncert_v_math/eemm102.pdf
+        system = EducationalTutorSystem(pdf_path="data/ncert_v_math/eemm102.pdf")
         print("✅ System initialized successfully!")
     except Exception as e:
         print(f"❌ System initialization failed: {e}")
@@ -18,7 +19,7 @@ def test_system():
     
     # Setup knowledge base
     print("\n📚 Setting up knowledge base...")
-    success = system.setup_knowledge_base("data/class5_chapter2.pdf")
+    success = system.setup_knowledge_base("data/ncert_v_math/eemm102.pdf")
     if success:
         print("✅ Knowledge base setup successful!")
     else:
@@ -33,7 +34,8 @@ def test_system():
         print(f"  {component}: {status_str}")
     
     # Test with image - SOLVE MODE
-    image_path = "images/math_problem.jpg"  # Update this to your image name if different
+    # "data/image/math_question.jpeg"
+    image_path = "data/image/math_question.jpeg"
     if os.path.exists(image_path):
         print(f"\n🖼️ Processing image: {image_path}")
         print("📝 Prompt: 'Solve this for me'")

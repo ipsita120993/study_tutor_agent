@@ -5,11 +5,7 @@ import google.generativeai as genai
 import os
 from typing import List, Dict, Any, Optional
 import json
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+import ipdb
 
 def generate_similar_questions(problem_statement: str, context: str = "", num_questions: int = 3, api_key: Optional[str] = None) -> List[str]:
     """
@@ -25,6 +21,7 @@ def generate_similar_questions(problem_statement: str, context: str = "", num_qu
         List[str]: List of similar questions
     """
     try:
+        ipdb.set_trace()
         # Configure API key
         if api_key:
             genai.configure(api_key=api_key)
