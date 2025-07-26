@@ -1,0 +1,208 @@
+# =============================================================================
+# Educational AI Tutor Project - .gitignore
+# Excludes all generated files, keeps only source code
+# =============================================================================
+
+# Virtual Environments
+venv/
+venv-*/
+genai-env*/
+env/
+ENV/
+.venv/
+.ENV/
+
+# Python Cache and Compiled Files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environment Variables (Contains API Keys)
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-project
+.sublime-workspace
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Logs and Debugging
+*.log
+logs/
+log/
+debug.log
+error.log
+
+# Vector Stores and Databases
+vectorstore/
+*.db
+*.sqlite
+*.sqlite3
+chroma_db/
+faiss_index/
+index/
+
+# Model Caches and Downloads
+models/
+model_cache/
+.cache/
+cached_models/
+
+# Data Files (Exclude actual content but keep structure)
+data/*.pdf
+data/*.txt
+data/*.csv
+data/*.xlsx
+data/*.docx
+data/downloads/
+data/processed/
+
+# Images (Exclude actual images but keep folder structure)
+images/*.jpg
+images/*.jpeg
+images/*.png
+images/*.gif
+images/*.bmp
+images/*.svg
+images/*.webp
+
+# Test Outputs and Coverage
+test_outputs/
+test_results/
+coverage_html/
+.coverage
+.pytest_cache/
+.tox/
+htmlcov/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# Package Manager Files
+node_modules/
+.npm
+.yarn/
+yarn-error.log
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Documentation Builds
+docs/_build/
+docs/build/
+site/
+
+# PyTorch/TensorFlow Models
+*.pth
+*.pt
+*.ckpt
+*.h5
+*.pb
+
+# Conda
+.conda/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# Exclude large output files
+output/
+outputs/
+results/
+
+# =============================================================================
+# KEEP THESE FILES (Source Code Only)
+# =============================================================================
+
+# Always include Python source files
+!*.py
+
+# Always include configuration files
+!requirements.txt
+!setup.py
+!pyproject.toml
+!setup.cfg
+!Pipfile
+!Pipfile.lock
+
+# Always include documentation
+!README.md
+!LICENSE
+!CHANGELOG.md
+!*.md
+
+# Always include project configuration
+!.gitignore
+!.gitattributes
+
+# Keep example/template files
+!.env.example
+!config.example.yaml
+!sample_*.py
+
+# Keep empty directories with .gitkeep
+!.gitkeep

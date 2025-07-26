@@ -1,0 +1,24 @@
+# Core dependencies - Fixed compatible versions
+langchain==0.2.16
+langchain-core==0.2.39
+langchain-community==0.2.16
+langchain-google-genai==1.0.10
+google-generativeai==0.7.2
+python-dotenv==1.0.0
+
+# Document processing
+pdfplumber==0.10.3
+pypdf==4.0.1
+
+# Utilities
+pillow==10.2.0
+numpy==1.26.3
+
+# Vector Store
+faiss-cpu==1.7.4
+
+# Typing fixes (for Windows)
+typing-extensions==4.9.0
+
+# LangGraph - Compatible versions
+langgraph==0.2.14
