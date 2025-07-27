@@ -6,6 +6,14 @@ import os
 from typing import List, Dict, Any, Optional
 import json
 import ipdb
+import logging
+from prompts import PromptFormatter
+from langchain.output_parsers import PydanticOutputParser
+from langchain.schema import OutputParserException
+from pydantic import BaseModel, Field
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def generate_similar_questions(problem_statement: str, context: str = "", num_questions: int = 3, api_key: Optional[str] = None) -> List[str]:
     """
@@ -21,7 +29,6 @@ def generate_similar_questions(problem_statement: str, context: str = "", num_qu
         List[str]: List of similar questions
     """
     try:
-        ipdb.set_trace()
         # Configure API key
         if api_key:
             genai.configure(api_key=api_key)
@@ -31,44 +38,39 @@ def generate_similar_questions(problem_statement: str, context: str = "", num_qu
             raise ValueError("Google API key not provided")
         
         model = genai.GenerativeModel("gemini-1.5-pro")
-        
         # Create prompt for similar question generation
-        prompt = f"""
-        You are a Class 5 mathematics teacher creating practice questions.
-        
-        ORIGINAL PROBLEM: {problem_statement}
-        
-        RELEVANT CONTEXT: {context if context else "No additional context available"}
-        
-        Generate {num_questions} similar practice questions that:
-        1. Use the same mathematical concepts and operations
-        2. Have similar difficulty level appropriate for Class 5
-        3. Use different numbers/scenarios but same underlying structure
-        4. Are engaging and relatable for 10-year-old students
-        5. Can be solved using the same methods
-        
-        Return your response as a JSON array of questions:
-        [
-            "Question 1 text here",
-            "Question 2 text here", 
-            "Question 3 text here"
-        ]
-        
-        Make sure each question is complete and clearly stated.
-        Use simple language and relatable scenarios (toys, fruits, school items, etc.).
-        """
-        
+        prompt = PromptFormatter.get_similar_questions_prompt(
+            problem_statement=problem_statement,
+            context=context,
+            num_questions=num_questions
+        )
+
         response = model.generate_content(prompt)
         
         if response.text:
             try:
                 # Parse JSON response
-                questions = json.loads(response.text.strip())
-                
+                ipdb.set_trace()
+                # Clean the response text
+                cleaned_text = clean_json_response(response.text)
+                parsed_data = json.loads(cleaned_text)
+                # Handle dictionary format like {"1": "question1", "2": "question2"}
+                if isinstance(parsed_data, dict):
+                    questions = list(parsed_data.values())
+                # Handle array format like ["question1", "question2", "question3"]
+                elif isinstance(parsed_data, list):
+                    questions = parsed_data
+                else:
+                    logger.warning(f"Unexpected data type: {type(parsed_data)}")
+                    return generate_fallback_questions(problem_statement, num_questions)
+
                 # Validate response
                 if isinstance(questions, list) and len(questions) == num_questions:
                     logger.info(f"Successfully generated {len(questions)} similar questions")
                     return questions
+                elif isinstance(questions, list) and len(questions) > 0:
+                    logger.warning(f"Expected {num_questions} questions, got {len(questions)}, returning what we have")
+                    return questions[:num_questions]  # Return up to the requested number
                 else:
                     logger.warning("Invalid response format, using fallback method")
                     return generate_fallback_questions(problem_statement, num_questions)
@@ -83,6 +85,32 @@ def generate_similar_questions(problem_statement: str, context: str = "", num_qu
     except Exception as e:
         logger.error(f"Error generating similar questions: {str(e)}")
         return generate_fallback_questions(problem_statement, num_questions)
+    
+def clean_json_response(response_text: str) -> str:
+    """
+    Clean response text to extract JSON content
+    Handles markdown code blocks and other formatting
+    
+    Args:
+        response_text (str): Raw response text
+    
+    Returns:
+        str: Cleaned JSON string
+    """
+    # Remove markdown code blocks
+    if '```json' in response_text:
+        start = response_text.find('```json') + 7
+        end = response_text.find('```', start)
+        if end != -1:
+            response_text = response_text[start:end]
+    elif '```' in response_text:
+        start = response_text.find('```') + 3
+        end = response_text.find('```', start)
+        if end != -1:
+            response_text = response_text[start:end]
+    
+    # Strip whitespace and newlines
+    return response_text.strip()
 
 def generate_context_aware_questions(problem_statement: str, context: str, num_questions: int = 3, api_key: Optional[str] = None) -> List[Dict[str, Any]]:
     """
@@ -336,8 +364,8 @@ def generate_comprehensive_question_set(problem_statement: str, context: str = "
     try:
         # Generate different types of questions
         similar_questions = generate_similar_questions(problem_statement, context, 3, api_key)
-        progressive_questions = generate_progressive_questions(problem_statement, 3, api_key)
-        themed_questions = generate_themed_questions(problem_statement, "random", 2, api_key)
+        progressive_questions = []#generate_progressive_questions(problem_statement, 3, api_key)
+        themed_questions = []#generate_themed_questions(problem_statement, "random", 2, api_key)
         
         question_set = {
             "similar_questions": similar_questions,

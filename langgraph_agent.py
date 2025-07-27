@@ -55,31 +55,60 @@ class AgentState(TypedDict):
 class EducationalTutorAgent:
     """LangGraph agent for educational tutoring workflow"""
     
-    def __init__(self, api_key: Optional[str] = None, pdf_path: Optional[str] = None):
+    def __init__(self, api_key: Optional[str], board: str, 
+                 class_name: str, subject: str):
         """
         Initialize the educational tutor agent
         
         Args:
             api_key (str, optional): Google API key
-            pdf_path (str, optional): Path to the PDF knowledge base
+            board (str): Educational board (default: "NCERT")
+            class_name (str): Class name (default: "Class 5")
+            subject (str): Subject name (default: "Mathematics")
         """
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError("Google API key not found")
         
-        self.pdf_path = pdf_path
+        # Store configuration parameters
+        self.board = board
+        self.class_name = class_name
+        self.subject = subject
         
-        # Initialize RAG manager if PDF is provided
+        # Initialize RAG manager
         self.rag_manager = None
-        if pdf_path and os.path.exists(pdf_path):
-            self.rag_manager = RAGManager(api_key=self.api_key)
-            # Fix: Change process_pdf to setup_rag_system
-            self.rag_manager.setup_rag_system(pdf_path, subject="Mathematics", class_name="Class 5", chapter="Chapter 2")
-        
+        self._initialize_rag_manager()
+                
         # Build the workflow graph
         self.graph = self._build_workflow()
         
-        logger.info("Educational Tutor Agent initialized successfully")
+        logger.info(f"Educational Tutor Agent initialized successfully for {board} board")
+    
+    def _initialize_rag_manager(self):
+        """Initialize RAG manager if vectorstore exists"""
+        try:
+            # Try to initialize RAG manager and load existing vectorstore
+            self.rag_manager = RAGManager(api_key=self.api_key)
+            
+            # Try to load existing vectorstore
+            vectorstore = self.rag_manager.load_vectorstore()
+            if vectorstore:
+                self.rag_manager.vectorstore = vectorstore
+                self.rag_manager.retriever = vectorstore.as_retriever(
+                    search_type="mmr",
+                    search_kwargs={
+                        "k": 5,
+                        "fetch_k": 10,
+                        "lambda_mult": 0.7
+                    }
+                )
+                logger.info("Loaded existing vectorstore successfully")
+            else:
+                logger.warning("No existing vectorstore found. RAG context will be limited.")
+                
+        except Exception as e:
+            logger.warning(f"Could not initialize RAG manager: {e}")
+            self.rag_manager = None
     
     def _build_workflow(self) -> StateGraph:
         """
@@ -188,18 +217,22 @@ class EducationalTutorAgent:
         return state
     
     def _rag_context_retrieval_node(self, state: AgentState) -> AgentState:
-        """Retrieve relevant context from RAG system"""
+        """Retrieve relevant context from RAG system with enhanced filtering"""
         logger.info("Starting RAG context retrieval")
         
         try:
             if self.rag_manager:
-                context = self.rag_manager.get_relevant_context(
-                    state["problem_statement"]
+                # Use enhanced filtering with board, class, and subject
+                context = self.rag_manager.get_context_string_with_board(
+                    query=state["problem_statement"],
+                    board_filter=self.board,  # Now this will work!
+                    class_filter=self.class_name,
+                    subject_filter=self.subject
                 )
                 state["context"] = context
-                logger.info("RAG context retrieved successfully")
+                logger.info(f"RAG context retrieved successfully for {self.board} {self.class_name} {self.subject}")
             else:
-                state["context"] = "No specific curriculum context available. Providing general mathematical guidance."
+                state["context"] = f"No specific curriculum context available for {self.board} board. Providing general mathematical guidance."
                 logger.warning("No RAG manager available - using fallback context")
                 
         except Exception as e:
@@ -415,18 +448,21 @@ class EducationalTutorAgent:
                 "similar_questions": []
             }
 
-def build_langgraph_agent(api_key: Optional[str] = None, pdf_path: Optional[str] = None) -> EducationalTutorAgent:
+def build_langgraph_agent(api_key: Optional[str], board: str, 
+                         class_name: str, subject: str) -> EducationalTutorAgent:
     """
     Build and return a configured LangGraph agent
     
     Args:
         api_key (str, optional): Google API key
-        pdf_path (str, optional): Path to the PDF knowledge base
+        board (str): Educational board (default: "NCERT")
+        class_name (str): Class name (default: "Class 5")
+        subject (str): Subject name (default: "Mathematics")
     
     Returns:
         EducationalTutorAgent: Configured agent
     """
-    return EducationalTutorAgent(api_key, pdf_path)
+    return EducationalTutorAgent(api_key=api_key, board=board, class_name=class_name, subject=subject)
 
 # Example usage
 if __name__ == "__main__":

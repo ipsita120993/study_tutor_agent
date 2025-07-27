@@ -26,19 +26,24 @@ logger = logging.getLogger(__name__)
 class EducationalTutorSystem:
     """Main system class for the educational tutor"""
     
-    def __init__(self, api_key: Optional[str] = None, pdf_path: Optional[str] = None):
+    def __init__(self, api_key: Optional[str], board: str, 
+                 class_name: str, subject: str):
         """
         Initialize the educational tutor system
         
         Args:
             api_key (str, optional): Google API key
-            pdf_path (str, optional): Path to Class 5 math PDF
+            board (str): Educational board (default: "NCERT")
+            class_name (str): Class name (default: "Class 5")
+            subject (str): Subject name (default: "Mathematics")
         """
         self.api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not self.api_key:
             raise ValueError("Google API key not found. Please set GOOGLE_API_KEY environment variable or provide it directly.")
         
-        self.pdf_path = pdf_path
+        self.board = board
+        self.class_name = class_name
+        self.subject = subject
         self.agent = None
         
         # Initialize the system
@@ -49,54 +54,19 @@ class EducationalTutorSystem:
         try:
             logger.info("Initializing Educational Tutor System...")
             
-            # Check if PDF exists
-            if self.pdf_path and not os.path.exists(self.pdf_path):
-                logger.warning(f"PDF file not found at {self.pdf_path}. System will work without knowledge base.")
-                self.pdf_path = None
-            
-            # Build the agent
-            self.agent = build_langgraph_agent(self.api_key, self.pdf_path)
+            # Build the agent with correct parameters
+            self.agent = build_langgraph_agent(
+                api_key=self.api_key,
+                board=self.board,
+                class_name=self.class_name,
+                subject=self.subject
+            )
             
             logger.info("Educational Tutor System initialized successfully!")
             
         except Exception as e:
             logger.error(f"Failed to initialize system: {e}")
             raise
-    
-    def setup_knowledge_base(self, pdf_path: str, subject: str = "Mathematics", class_name: str = "Class 5", chapter: str = "Chapter 2") -> bool:
-        """
-        Setup or update the knowledge base with a new PDF
-        
-        Args:
-            pdf_path (str): Path to the PDF file
-            subject (str): Subject name
-            class_name (str): Class name  
-            chapter (str): Chapter name
-        
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        try:
-            if not os.path.exists(pdf_path):
-                logger.error(f"PDF file not found: {pdf_path}")
-                return False
-            
-            logger.info(f"Setting up knowledge base with {pdf_path}...")
-            
-            # Initialize RAG manager and setup knowledge base
-            rag_manager = RAGManager(self.api_key)
-            rag_manager.setup_rag_system(pdf_path, subject, class_name, chapter)
-            
-            # Update the agent with new RAG system
-            self.agent.rag_manager = rag_manager
-            self.pdf_path = pdf_path
-            
-            logger.info("Knowledge base setup completed successfully!")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Failed to setup knowledge base: {e}")
-            return False
     
     def process_math_problem(self, image_path: str, student_prompt: Optional[str] = None) -> Dict[str, Any]:
         """

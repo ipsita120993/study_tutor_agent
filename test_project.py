@@ -11,19 +11,10 @@ def test_system():
     # Initialize system
     try:
         #data/ncert_v_math/eemm102.pdf
-        system = EducationalTutorSystem(pdf_path="data/ncert_v_math/eemm102.pdf")
+        system = EducationalTutorSystem(api_key=None, board="NCERT", class_name="Class 5", subject="Mathematics")
         print("✅ System initialized successfully!")
     except Exception as e:
         print(f"❌ System initialization failed: {e}")
-        return
-    
-    # Setup knowledge base
-    print("\n📚 Setting up knowledge base...")
-    success = system.setup_knowledge_base("data/ncert_v_math/eemm102.pdf")
-    if success:
-        print("✅ Knowledge base setup successful!")
-    else:
-        print("❌ Knowledge base setup failed!")
         return
     
     # Validate system

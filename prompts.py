@@ -220,12 +220,12 @@ class PromptTemplates:
     4. Are engaging and relatable for 10-year-old students
     5. Can be solved using the same methods
     
-    Return your response as a JSON array of questions:
-    [
-        "Question 1 text here",
-        "Question 2 text here", 
-        "Question 3 text here"
-    ]
+    Return your response as a JSON dictionary of questions:
+    {{
+        1: "Question 1 text here",
+        2: "Question 2 text here", 
+        3: "Question 3 text here"
+    }}
     
     Make sure each question is complete and clearly stated.
     Use simple language and relatable scenarios (toys, fruits, school items, etc.).

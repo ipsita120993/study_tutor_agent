@@ -22,3 +22,5 @@ typing-extensions==4.9.0
 
 # LangGraph - Compatible versions
 langgraph==0.2.14
+
+pydantic>=2.0.0
